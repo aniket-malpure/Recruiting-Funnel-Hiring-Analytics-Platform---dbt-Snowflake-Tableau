@@ -1,0 +1,47 @@
+name: recruiting_funnel
+version: "1.0.0"
+config-version: 2
+profile: recruiting_funnel
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+analysis-paths: ["analyses"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  raw_schema: raw
+  # snapshot date used for "currently open", tenure and first-year attrition logic
+  as_of_date: "2026-09-30"
+  # hires must have had this many days of tenure opportunity to count in attrition cohorts
+  attrition_window_days: 365
+
+seeds:
+  recruiting_funnel:
+    +schema: reference
+    stage_mapping:
+      +column_types:
+        stage_order: integer
+        is_terminal: boolean
+    source_channel_mapping:
+      +column_types:
+        is_paid_channel: boolean
+
+models:
+  recruiting_funnel:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+
+tests:
+  recruiting_funnel:
+    +severity: error
+    +store_failures: false

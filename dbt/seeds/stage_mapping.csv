@@ -1,0 +1,24 @@
+raw_label,canonical_stage,stage_order,stage_group,is_terminal
+applied,Applied,1,Funnel,false
+new applicant,Applied,1,Funnel,false
+phone screen,Recruiter Screen,2,Funnel,false
+phone_screen,Recruiter Screen,2,Funnel,false
+recruiter screen,Recruiter Screen,2,Funnel,false
+hm review,Hiring Manager Review,3,Funnel,false
+hiring manager review,Hiring Manager Review,3,Funnel,false
+hm_review,Hiring Manager Review,3,Funnel,false
+assessment,Technical Assessment,4,Funnel,false
+technical assessment,Technical Assessment,4,Funnel,false
+take_home,Technical Assessment,4,Funnel,false
+onsite,Onsite Interview,5,Funnel,false
+onsite interview,Onsite Interview,5,Funnel,false
+panel interview,Onsite Interview,5,Funnel,false
+final_round,Onsite Interview,5,Funnel,false
+offer,Offer,6,Funnel,false
+offer extended,Offer,6,Funnel,false
+hired,Hired,7,Funnel,true
+offer accepted,Hired,7,Funnel,true
+rejected,Rejected,90,Exit,true
+not selected,Rejected,90,Exit,true
+withdrawn,Withdrawn,91,Exit,true
+candidate withdrew,Withdrawn,91,Exit,true

@@ -1,0 +1,22 @@
+raw_source,source_channel,source_category,is_paid_channel
+employee referral,Employee Referral,Referral,false
+referral,Employee Referral,Referral,false
+internal transfer,Internal Mobility,Internal,false
+internal_mobility,Internal Mobility,Internal,false
+campus,University Recruiting,Proactive Sourcing,false
+university,University Recruiting,Proactive Sourcing,false
+university recruiting,University Recruiting,Proactive Sourcing,false
+linkedin,LinkedIn,Proactive Sourcing,true
+linkedin_ads,LinkedIn,Proactive Sourcing,true
+li,LinkedIn,Proactive Sourcing,true
+careers page,Career Site,Inbound,false
+career_site,Career Site,Inbound,false
+company website,Career Site,Inbound,false
+indeed,Job Board,Inbound,true
+job_board,Job Board,Inbound,true
+glassdoor,Job Board,Inbound,true
+agency,Agency,Third Party,true
+staffing_agency,Agency,Third Party,true
+career fair,Event,Events,true
+event,Event,Events,true
+hiring event,Event,Events,true

@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: int_application_stage_progression
+    description: First entry timestamp per canonical stage, one row per application.
+    columns:
+      - name: application_id
+        data_tests: [unique, not_null]
+      - name: max_stage_order
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 7
+
+  - name: int_applications_enriched
+    description: Application grain joined to candidate, requisition, stage and offer attributes.
+    columns:
+      - name: application_id
+        data_tests: [unique, not_null]
+      - name: source_channel
+        data_tests: [not_null]
+      - name: department
+        data_tests: [not_null]

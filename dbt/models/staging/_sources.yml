@@ -1,0 +1,51 @@
+version: 2
+
+sources:
+  - name: ats
+    description: Applicant Tracking System extracts landed by ingestion/load_raw.py.
+    schema: "{{ var('raw_schema') }}"
+    loaded_at_field: _loaded_at
+    config:
+      freshness:
+        warn_after: {count: 24, period: hour}
+        error_after: {count: 48, period: hour}
+    tables:
+      - name: requisitions
+        description: Job requisitions opened by hiring managers.
+        columns:
+          - name: req_id
+            data_tests: [unique, not_null]
+      - name: candidates
+        description: Candidate profiles. Contains PII (name, email); minimized in staging.
+        columns:
+          - name: candidate_id
+            data_tests: [unique, not_null]
+      - name: applications
+        description: One row per candidate application to a requisition.
+        columns:
+          - name: application_id
+            data_tests: [unique, not_null]
+      - name: stage_events
+        description: Every pipeline stage an application entered, with raw ATS labels.
+        columns:
+          - name: event_id
+            data_tests: [unique, not_null]
+      - name: offers
+        description: Offers extended and the candidate response.
+        columns:
+          - name: offer_id
+            data_tests: [unique, not_null]
+
+  - name: hris
+    description: HR information system extract for hired employees.
+    schema: "{{ var('raw_schema') }}"
+    loaded_at_field: _loaded_at
+    config:
+      freshness:
+        warn_after: {count: 24, period: hour}
+        error_after: {count: 48, period: hour}
+    tables:
+      - name: employees
+        columns:
+          - name: employee_id
+            data_tests: [unique, not_null]

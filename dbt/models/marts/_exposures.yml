@@ -1,0 +1,20 @@
+version: 2
+
+exposures:
+  - name: tableau_hiring_analytics
+    label: Hiring Analytics Dashboard (Tableau)
+    type: dashboard
+    maturity: medium
+    url: https://public.tableau.com/  # replace with your Tableau Public / Server link
+    description: >
+      Three-tab Tableau workbook: Recruiting Funnel, Time to Hire & Offers, and
+      Quality of Hire (first-year attrition by source). Built on the MARTS schema.
+    depends_on:
+      - ref('mart_recruiting_funnel')
+      - ref('mart_time_to_hire')
+      - ref('mart_offer_acceptance')
+      - ref('mart_attrition_by_source')
+      - ref('mart_requisition_health')
+    owner:
+      name: Aniket Malpure
+      email: aniketmalpure23@gmail.com

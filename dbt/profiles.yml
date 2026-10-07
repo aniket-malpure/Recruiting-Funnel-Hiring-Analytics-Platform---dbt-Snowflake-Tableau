@@ -1,0 +1,22 @@
+# Run dbt from this folder with:  dbt build --profiles-dir .
+# Default target is local DuckDB (no account needed); use --target snowflake for the warehouse.
+recruiting_funnel:
+  target: "{{ env_var('DBT_TARGET', 'duckdb') }}"
+  outputs:
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '../data/people_analytics.duckdb') }}"
+      threads: 4
+
+    snowflake:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD', '') }}"
+      authenticator: "{{ env_var('SNOWFLAKE_AUTHENTICATOR', 'snowflake') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORMER') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'PEOPLE_ANALYTICS_WH') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE', 'PEOPLE_ANALYTICS') }}"
+      schema: analytics
+      threads: 8
+      client_session_keep_alive: false

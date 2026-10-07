@@ -1,0 +1,117 @@
+version: 2
+
+models:
+  - name: stg_ats__requisitions
+    description: Cleaned job requisitions.
+    columns:
+      - name: req_id
+        data_tests: [unique, not_null]
+      - name: job_level
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['L1', 'L2', 'L3', 'L4', 'L5']
+      - name: req_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Open', 'Filled', 'Cancelled', 'On Hold']
+      - name: headcount
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 50
+      - name: opened_date
+        data_tests: [not_null]
+
+  - name: stg_ats__candidates
+    description: Candidates with PII minimized and source channel normalized.
+    columns:
+      - name: candidate_id
+        data_tests: [unique, not_null]
+      - name: source_channel
+        description: Canonical source channel. Null means the raw label is missing from source_channel_mapping.
+        data_tests: [not_null]
+      - name: years_experience
+        data_tests: [not_negative]
+
+  - name: stg_ats__applications
+    columns:
+      - name: application_id
+        data_tests: [unique, not_null]
+      - name: candidate_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_ats__candidates')
+                field: candidate_id
+      - name: req_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_ats__requisitions')
+                field: req_id
+      - name: application_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Hired', 'Rejected', 'Withdrawn', 'Offer Declined']
+
+  - name: stg_ats__stage_events
+    description: Stage transitions with canonical stage names.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: canonical_stage
+        description: >
+          Canonical stage from the stage_mapping seed. A failure here means the ATS
+          emitted a stage label nobody has mapped yet (upstream workflow change).
+        data_tests: [not_null]
+      - name: application_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_ats__applications')
+                field: application_id
+
+  - name: stg_ats__offers
+    columns:
+      - name: offer_id
+        data_tests: [unique, not_null]
+      - name: application_id
+        data_tests:
+          - unique
+          - relationships:
+              arguments:
+                to: ref('stg_ats__applications')
+                field: application_id
+      - name: base_salary_usd
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 30000
+                max_value: 400000
+
+  - name: stg_hris__employees
+    columns:
+      - name: employee_id
+        data_tests: [unique, not_null]
+      - name: application_id
+        data_tests:
+          - unique
+          - relationships:
+              arguments:
+                to: ref('stg_ats__applications')
+                field: application_id
+      - name: employment_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Active', 'Terminated', 'Pre-Start']
+    data_tests:
+      - expression_is_true:
+          arguments:
+            expression: "termination_date is null or termination_date >= hire_date"

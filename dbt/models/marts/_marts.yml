@@ -1,0 +1,135 @@
+version: 2
+
+models:
+  - name: dim_source_channel
+    description: Canonical candidate source channels and their category.
+    columns:
+      - name: source_channel
+        data_tests: [unique, not_null]
+
+  - name: fct_applications
+    description: "{{ doc('fct_applications') }}"
+    data_tests:
+      - row_count_at_least:
+          arguments:
+            min_rows: 50000
+      - expression_is_true:
+          arguments:
+            expression: "not is_hired or reached_offer"
+    columns:
+      - name: application_id
+        data_tests: [unique, not_null]
+      - name: source_channel
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_source_channel')
+                field: source_channel
+      - name: furthest_stage
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Applied', 'Recruiter Screen', 'Hiring Manager Review', 'Technical Assessment',
+                         'Onsite Interview', 'Offer', 'Hired']
+      - name: days_to_hire
+        description: "{{ doc('time_to_hire') }}"
+        data_tests:
+          - not_negative
+          - accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 365
+      - name: days_to_screen
+        data_tests: [not_negative]
+      - name: days_offer_to_response
+        data_tests: [not_negative]
+
+  - name: fct_hires
+    description: One row per hired candidate with time-to-hire, time-to-fill and first-year retention.
+    columns:
+      - name: employee_id
+        data_tests: [unique, not_null]
+      - name: application_id
+        data_tests:
+          - unique
+          - relationships:
+              arguments:
+                to: ref('fct_applications')
+                field: application_id
+      - name: days_to_fill
+        description: "{{ doc('time_to_fill') }}"
+        data_tests: [not_negative]
+      - name: tenure_days
+        data_tests: [not_negative]
+      - name: left_within_first_year
+        description: "{{ doc('first_year_attrition') }}"
+        data_tests: [not_null]
+
+  - name: mart_recruiting_funnel
+    description: Long-format recruiting funnel for Tableau funnel and conversion views.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [application_month, department, job_level, source_channel, stage_order]
+    columns:
+      - name: stage_conversion_rate
+        description: "{{ doc('stage_conversion_rate') }}"
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+
+  - name: mart_time_to_hire
+    description: Monthly time-to-hire and time-to-fill by department and source.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [start_month, department, source_channel]
+    columns:
+      - name: median_days_to_hire
+        data_tests: [not_null, not_negative]
+
+  - name: mart_offer_acceptance
+    description: "{{ doc('offer_acceptance_rate') }}"
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [application_month, department, job_level, source_channel]
+      - expression_is_true:
+          arguments:
+            expression: "offers_accepted <= offers_extended"
+    columns:
+      - name: offer_acceptance_rate
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+
+  - name: mart_attrition_by_source
+    description: First-year attrition by source of hire and department.
+    data_tests:
+      - unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [source_channel, department]
+    columns:
+      - name: first_year_attrition_rate
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+
+  - name: mart_requisition_health
+    description: Requisition pipeline health and time-to-fill SLA status.
+    columns:
+      - name: req_id
+        data_tests: [unique, not_null]
+      - name: sla_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Cancelled', 'Over Target', 'Within Target']
+      - name: days_open
+        data_tests: [not_negative]
